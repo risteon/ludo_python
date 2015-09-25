@@ -1,4 +1,8 @@
 # ludo_python
+=============
+
+Dependencies: python-tk (tkinter module)
+-----
 
 Just experimenting, not useful yet.
 
