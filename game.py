@@ -1,9 +1,13 @@
+#!/usr/bin/env python3
+
 ### game.py
 
 from die import Die
 from board import Board
 from board import BoardField
 from board import Player
+
+from BoardDrawer import BoardDrawer
 
 print("Welcome to a game of ludo!")
 
@@ -22,4 +26,8 @@ print(board_field.getFieldType())
 player = Player(0)
 
 # print board
-the_board.printBoard()
+board_drawer = BoardDrawer()
+board_drawer.showBoard()
+
+#for x in range(40):
+#    print(board_drawer.getFieldCoordinates(x))
