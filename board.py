@@ -49,6 +49,9 @@ class Board:
         print("yy  XYX  gg")
         print("yy  XXX  gg")
 
+        for i in range(10):
+            print (self.field[0][i].getFieldType())
+
 
     def movePawn( self ):
         print("blubb")
