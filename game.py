@@ -20,7 +20,7 @@ the_board = Board()
 
 # field type test
 board_field = BoardField()
-print(board_field.getFieldType())
+print(board_field.get_field_type())
 
 # player test
 player = Player(0)
@@ -28,6 +28,3 @@ player = Player(0)
 # print board
 board_drawer = BoardDrawer()
 board_drawer.show_board()
-
-#for x in range(40):
-#    print(board_drawer.getFieldCoordinates(x))
