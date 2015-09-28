@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-### game.py
+### Ludo.py
 
 from die import Die
 from board import Board
@@ -8,6 +8,8 @@ from board import BoardField
 from board import Player
 
 from BoardDrawer import BoardDrawer
+from BoardDrawer import BoardFieldType
+from BoardDrawer import Players
 
 print("Welcome to a game of ludo!")
 
@@ -28,3 +30,7 @@ player = Player(0)
 # print board
 board_drawer = BoardDrawer()
 board_drawer.show_board()
+
+# move pawn around
+# board_drawer.move_player(4, BoardFieldType.FIELD, Players.black, 0)
+#board_drawer.show_board()
