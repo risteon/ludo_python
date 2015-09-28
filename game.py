@@ -27,7 +27,7 @@ player = Player(0)
 
 # print board
 board_drawer = BoardDrawer()
-board_drawer.showBoard()
+board_drawer.show_board()
 
 #for x in range(40):
 #    print(board_drawer.getFieldCoordinates(x))
