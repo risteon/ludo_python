@@ -2,6 +2,18 @@ from tkinter import *
 from enum import IntEnum, unique
 
 
+class BoardFieldType(IntEnum):
+    HOME = 0
+    FIELD = 1
+    FINISH = 2
+
+# Colors
+@unique
+class Players(IntEnum):
+    black = 0
+    yellow = 1
+    green = 2
+    red = 3
 
 
 class BoardDrawer:
@@ -12,74 +24,100 @@ class BoardDrawer:
     CANVAS_WIDTH = GRID_PIXEL_SIZE * GRID_SIZE
     CANVAS_HEIGHT = GRID_PIXEL_SIZE * GRID_SIZE
 
-    # Colors
-    @unique
-    class PlayerColors(IntEnum):
-        black = 0
-        yellow = 1
-        green = 2
-        red = 3
-
-    PLAYER_POSITIONS = (
+    PLAYER_DEFINITIONS = (
         ("#000000", (0, 0), (5, 1), (0, 1)),
         ("#FFFF00", (0, 9), (1, 5), (1, 0)),
         ("#00FF00", (9, 9), (5, 9), (0, -1)),
         ("#FF0000", (9, 0), (9, 5), (-1, 0))
     )
 
+    PLAYER_START_FIELDS = (0, 0), (0, 1), (1, 0), (1, 1)
+
     def __init__(self):
         """ Create canvas
 
         <longer description>
         """
+        self.pawns = []
+
         self.master = Tk()
-        self.canvas = Canvas(self.master,
-                             width=BoardDrawer.CANVAS_WIDTH,
-                             height=BoardDrawer.CANVAS_HEIGHT)
-        self.canvas.pack()
+        self.master.title("Ludo")
+        self.w = Canvas(self.master,
+                        width=BoardDrawer.CANVAS_WIDTH,
+                        height=BoardDrawer.CANVAS_HEIGHT)
+        self.w.pack()
 
         # Draw board outline
         self.draw_board()
 
     def draw_board(self):
-
         # Draw standard playing fields as circles
         for field_number in range(40):
-            coord = self.calculate_field_grid_coordinates(field_number)
-            self._draw_board_field(coord, fill="#999999")
+            coord = BoardDrawer._get_grid_coordinates(
+                BoardFieldType.FIELD,
+                field_number
+            )
+            self._draw_fields_board(coord, fill="#999999")
 
-        # Draw player home fields in colors
-        for color in BoardDrawer.PlayerColors:
-            self._draw_player_home(BoardDrawer.PLAYER_POSITIONS[color])
+        # Draw player home fields
+        self._draw_fields_home()
 
-        # Draw player finish fields in colors
-        for color in BoardDrawer.PlayerColors:
-            self._draw_player_finish(BoardDrawer.PLAYER_POSITIONS[color])
+        # Draw player finish fields
+        self._draw_fields_finish()
 
-    def _draw_player_home(self, player_position):
-        self._draw_board_field(player_position[1], fill=player_position[0])
-        self._draw_board_field(
-            BoardDrawer.tuple_add(player_position[1], (0, 1)),
-            fill=player_position[0])
-        self._draw_board_field(
-            BoardDrawer.tuple_add(player_position[1], (1, 0)),
-            fill=player_position[0])
-        self._draw_board_field(
-            BoardDrawer.tuple_add(player_position[1], (1, 1)),
-            fill=player_position[0])
+        # Create player pawns on home fields
+        self._create_pawns_initial()
 
-    def _draw_player_finish(self, player_position):
+    def move_player(self, field_number, field_type, player_color, pawn_id):
+        # change coordinates of existing canvas object
+        coords = BoardDrawer._get_grid_coordinates(field_type, field_number, player_color)
+        print(coords)
+        coords_pixel = BoardDrawer._get_grid_pixel_coordinates(coords)
+        print(coords_pixel)
+        self.w.coords(self.pawns[player_color][pawn_id], coords_pixel[0]+6, coords_pixel[1]+6,
+                      coords_pixel[0] + 34, coords_pixel[1] + 34)
+
+    def _draw_fields_home(self):
         for i in range(4):
-            grid_coord = BoardDrawer.tuple_add(player_position[2],
-                                               BoardDrawer.tuple_multiply(
-                                                   player_position[3], i))
-            self._draw_board_field(grid_coord, fill=player_position[0])
+            for color in Players:
+                grid_coord = BoardDrawer._get_grid_coordinates(
+                    BoardFieldType.HOME, i, color
+                )
+                self._draw_fields_board(grid_coord,
+                                        fill=BoardDrawer.PLAYER_DEFINITIONS[color][0])
 
-    def _draw_board_field(self, grid_coordinates, **oval_options):
-        pixel_lower = self.get_grid_pixel_coordinates(grid_coordinates)
-        self.canvas.create_oval(pixel_lower[0], pixel_lower[1],
-                                pixel_lower[0] + 40, pixel_lower[1] + 40,
-                                oval_options)
+    def _draw_fields_finish(self):
+        for i in range(4):
+            for color in Players:
+                grid_coord = BoardDrawer._get_grid_coordinates(
+                    BoardFieldType.FINISH, i, color
+                )
+                self._draw_fields_board(grid_coord,
+                                        fill=BoardDrawer.PLAYER_DEFINITIONS[color][0])
+
+    def _draw_fields_board(self, grid_coordinates, **oval_options):
+        pixel_lower = self._get_grid_pixel_coordinates(grid_coordinates)
+        return self.w.create_oval(pixel_lower[0], pixel_lower[1],
+                                       pixel_lower[0] + 40, pixel_lower[1] + 40,
+                                       oval_options)
+
+    def _draw_board_player(self, grid_coordinates, player_color):
+        pixel_lower = self._get_grid_pixel_coordinates(grid_coordinates)
+        return self.w.create_oval(pixel_lower[0]+6, pixel_lower[1]+6,
+                                       pixel_lower[0] + 34, pixel_lower[1] + 34,
+                                       fill=player_color, outline="white", width=5.0)
+
+    def _create_pawns_initial(self):
+        for color in Players:
+            pawns_color = []
+            for i in range(4):
+                coord = BoardDrawer._get_grid_coordinates(BoardFieldType.HOME, i, color)
+                pawns_color.append(self._draw_board_player(
+                    coord,
+                    BoardDrawer.PLAYER_DEFINITIONS[color][0])
+                )
+
+            self.pawns.append(pawns_color)
 
     @staticmethod
     def tuple_add(xs, ys):
@@ -92,8 +130,33 @@ class BoardDrawer:
     def show_board(self):
         self.master.mainloop()
 
+
     @staticmethod
-    def calculate_field_grid_coordinates(field_number):
+    def _get_grid_coordinates(field_type,
+                              field_number,
+                              player_color=Players.black):
+        if field_type == BoardFieldType.FIELD:
+            return BoardDrawer._calculate_field_grid_coordinates(field_number)
+        elif field_type == BoardFieldType.FINISH:
+            assert 0 <= field_number < 4
+            return BoardDrawer.tuple_add(
+                BoardDrawer.PLAYER_DEFINITIONS[player_color][2],
+                BoardDrawer.tuple_multiply(
+                    BoardDrawer.PLAYER_DEFINITIONS[player_color][3],
+                    field_number
+                )
+            )
+        elif field_type == BoardFieldType.HOME:
+            assert 0 <= field_number < 4
+            return BoardDrawer.tuple_add(
+                BoardDrawer.PLAYER_DEFINITIONS[player_color][1],
+                BoardDrawer.PLAYER_START_FIELDS[field_number]
+            )
+
+        assert False
+
+    @staticmethod
+    def _calculate_field_grid_coordinates(field_number):
 
         # Check Range
         assert 0 <= field_number < 40, \
@@ -125,7 +188,7 @@ class BoardDrawer:
         return 5, 0
 
     @staticmethod
-    def get_grid_pixel_coordinates(coordinates):
+    def _get_grid_pixel_coordinates(coordinates):
 
         return (coordinates[0] * BoardDrawer.GRID_PIXEL_SIZE +
                 BoardDrawer.GRID_PIXEL_MARGIN,
