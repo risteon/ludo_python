@@ -3,16 +3,6 @@
 from common_definitions import BoardFieldType, BoardFieldCount, PlayerCount, PawnCount, Players
 
 
-class Player:
-
-    def __init__(self, number):
-        self.number = number
-        print("New player: ", number)
-
-    def get_number(self):
-        return self.number
-
-
 class BoardField:
 
     def __init__(self):

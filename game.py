@@ -3,6 +3,8 @@
 import threading
 
 from board import Board
+from player import Player
+from die import Die
 
 from boarddrawer import BoardDrawer
 
@@ -13,6 +15,9 @@ from common_definitions import Players
 class Game:
     def __init__(self):
         self.board = Board()
+        self.players = [Player(p) for p in Players]
+        self.current = Players.black
+        self.die = Die()
 
         self.event_ready = threading.Event()
         # Look to serialize canvas drawings
@@ -23,6 +28,17 @@ class Game:
 
         # Wait for completion of canvas initialization
         self.event_ready.wait()
+
+    def next_move(self):
+        print("It's", self.current, "move")
+        while True:
+            number = self.die.roll()
+            self.players[self.current].move(number)
+            if number is not 6:
+                break
+            print(self.current, "rolls again!")
+
+        self.current = Players.next(self.current)
 
     def test_pawn_movement(self):
         # Create tasks

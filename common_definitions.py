@@ -19,6 +19,12 @@ class Players(IntEnum):
     green = 2
     red = 3
 
+    @staticmethod
+    def next(current):
+        if current == Players.red:
+            return Players.black
+        return Players(current + 1)
+
 PlayerCount = 4
 PawnCount = 4
 BoardFieldCount = 40

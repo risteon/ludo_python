@@ -1,5 +1,6 @@
 import random
 
+
 class Die:
     """Simulate a 6-sided die."""
     def roll( self ):
