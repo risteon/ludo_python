@@ -1,11 +1,13 @@
 from tkinter import *
 from enum import IntEnum, unique
+import queue
 
 
 class BoardFieldType(IntEnum):
     HOME = 0
     FIELD = 1
     FINISH = 2
+
 
 # Colors
 @unique
@@ -39,6 +41,7 @@ class BoardDrawer:
         <longer description>
         """
         self.pawns = []
+        self.job_queue = queue.Queue()
 
         self.master = Tk()
         self.master.title("Ludo")
@@ -49,6 +52,26 @@ class BoardDrawer:
 
         # Draw board outline
         self.draw_board()
+
+    def update_canvas(self):
+        """ can't create custom event for tkinter's main loop,
+        so use this timed event loop as alternate solution
+        to process update jobs from main game thread
+        """
+        try:
+            while True:
+                if not self._process_update_task(self.job_queue.get_nowait()):
+                    print("invalid canvas update task!")
+        except queue.Empty:
+            # insert 'update job' into tkinter main loop after given time
+            self.master.after(250, self.update_canvas)
+
+    def _process_update_task(self, task):
+        if task['type'] == 'move':
+            self.move_player(*task['data'])
+            return True
+
+        return False
 
     def draw_board(self):
         # Draw standard playing fields as circles
@@ -68,13 +91,12 @@ class BoardDrawer:
         # Create player pawns on home fields
         self._create_pawns_initial()
 
-    def move_player(self, field_number, field_type, player_color, pawn_id):
+    def move_player(self, player, pawn_id, field_type, field_number):
         # change coordinates of existing canvas object
-        coords = BoardDrawer._get_grid_coordinates(field_type, field_number, player_color)
-        print(coords)
+        coords = BoardDrawer._get_grid_coordinates(field_type, field_number, player)
         coords_pixel = BoardDrawer._get_grid_pixel_coordinates(coords)
-        print(coords_pixel)
-        self.w.coords(self.pawns[player_color][pawn_id], coords_pixel[0]+6, coords_pixel[1]+6,
+
+        self.w.coords(self.pawns[player][pawn_id], coords_pixel[0]+6, coords_pixel[1]+6,
                       coords_pixel[0] + 34, coords_pixel[1] + 34)
 
     def _draw_fields_home(self):
@@ -98,14 +120,14 @@ class BoardDrawer:
     def _draw_fields_board(self, grid_coordinates, **oval_options):
         pixel_lower = self._get_grid_pixel_coordinates(grid_coordinates)
         return self.w.create_oval(pixel_lower[0], pixel_lower[1],
-                                       pixel_lower[0] + 40, pixel_lower[1] + 40,
-                                       oval_options)
+                                  pixel_lower[0] + 40, pixel_lower[1] + 40,
+                                  oval_options)
 
     def _draw_board_player(self, grid_coordinates, player_color):
         pixel_lower = self._get_grid_pixel_coordinates(grid_coordinates)
         return self.w.create_oval(pixel_lower[0]+6, pixel_lower[1]+6,
-                                       pixel_lower[0] + 34, pixel_lower[1] + 34,
-                                       fill=player_color, outline="white", width=5.0)
+                                  pixel_lower[0] + 34, pixel_lower[1] + 34,
+                                  fill=player_color, outline="white", width=5.0)
 
     def _create_pawns_initial(self):
         for color in Players:
@@ -128,8 +150,10 @@ class BoardDrawer:
         return tuple(x * f for x in xs)
 
     def show_board(self):
+        # user update canvas loop
+        self.update_canvas()
+        # tkinter main event loop
         self.master.mainloop()
-
 
     @staticmethod
     def _get_grid_coordinates(field_type,

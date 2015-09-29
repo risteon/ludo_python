@@ -8,4 +8,4 @@ print("Welcome to a game of ludo!")
 game = Game()
 
 # call test function
-#game.test_pawn_movement()
+game.test_pawn_movement()
