@@ -6,7 +6,7 @@ from board import Board
 
 from boarddrawer import BoardDrawer
 
-from common_definitions import BoardFieldType
+from common_definitions import BoardFieldType, PawnCount
 from common_definitions import Players
 
 
@@ -34,6 +34,18 @@ class Game:
         self.board_drawer.job_queue.put_nowait(task1)
         self.board_drawer.job_queue.put_nowait(task2)
         self.board_drawer.job_queue.put_nowait(task3)
+
+    def update_canvas(self):
+        tasks = []
+        # iterate over every pawn
+        for player in Players:
+            for pawn in range(PawnCount):
+                tasks.append({'type': "move",
+                              'data': (player, pawn, self.board.pawns[player][pawn][0],
+                                       self.board.pawns[player][pawn][1])})
+
+        # update every pawn on canvas
+        list(map(self.board_drawer.job_queue.put_nowait, tasks))
 
     def _tk_mainloop(self):
         # print board on tk canvas
