@@ -1,21 +1,8 @@
 from tkinter import *
-from enum import IntEnum, unique
 import queue
 
-
-class BoardFieldType(IntEnum):
-    HOME = 0
-    FIELD = 1
-    FINISH = 2
-
-
-# Colors
-@unique
-class Players(IntEnum):
-    black = 0
-    yellow = 1
-    green = 2
-    red = 3
+from common_definitions import BoardFieldType
+from common_definitions import Players
 
 
 class BoardDrawer:

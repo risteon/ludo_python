@@ -2,13 +2,18 @@
 
 import threading
 
+from board import Board
+
 from boarddrawer import BoardDrawer
-from boarddrawer import BoardFieldType
-from boarddrawer import Players
+
+from common_definitions import BoardFieldType
+from common_definitions import Players
 
 
 class Game:
     def __init__(self):
+        self.board = Board()
+
         self.event_ready = threading.Event()
         # Look to serialize canvas drawings
         self.lock = threading.Lock()
