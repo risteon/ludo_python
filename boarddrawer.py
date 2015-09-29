@@ -62,6 +62,9 @@ class BoardDrawer:
             while True:
                 if not self._process_update_task(self.job_queue.get_nowait()):
                     print("invalid canvas update task!")
+                    # is more error handling necessary?
+                    # assert False
+
         except queue.Empty:
             # insert 'update job' into tkinter main loop after given time
             self.master.after(250, self.update_canvas)

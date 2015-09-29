@@ -2,9 +2,9 @@
 
 import threading
 
-from BoardDrawer import BoardDrawer
-from BoardDrawer import BoardFieldType
-from BoardDrawer import Players
+from boarddrawer import BoardDrawer
+from boarddrawer import BoardFieldType
+from boarddrawer import Players
 
 
 class Game:

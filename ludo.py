@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from Game import Game
+from game import Game
 
 print("Welcome to a game of ludo!")
 
