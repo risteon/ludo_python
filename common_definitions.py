@@ -18,3 +18,7 @@ class Players(IntEnum):
     yellow = 1
     green = 2
     red = 3
+
+PlayerCount = 4
+PawnCount = 4
+BoardFieldCount = 40
