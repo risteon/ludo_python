@@ -54,7 +54,7 @@ class BoardDrawer:
 
         except queue.Empty:
             # insert 'update job' into tkinter main loop after given time
-            self.master.after(250, self.update_canvas)
+            self.master.after(100, self.update_canvas)
 
     def _process_update_task(self, task):
         if task['type'] == 'move':
