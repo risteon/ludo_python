@@ -1,4 +1,4 @@
-#!python3
+#!/usr/bin/env python3
 
 import threading
 
@@ -8,18 +8,24 @@ from die import Die
 
 from boarddrawer import BoardDrawer
 
-from common_definitions import BoardFieldType, PawnCount
+from move_manager import MoveManager
+
+from common_definitions import BoardFieldType, PAWN_COUNT
 from common_definitions import Players
 
 
 class Game:
     def __init__(self):
+
         self.board = Board()
+        self.move_manager = MoveManager(self.board)
+
         self.players = [Player(p) for p in Players]
         self.current = Players.black
         self.die = Die()
 
         self.event_ready = threading.Event()
+        self.event_finished = threading.Event()
         # Look to serialize canvas drawings
         self.lock = threading.Lock()
         # Thread for tk mainloop, this runs until the program gets exited
@@ -52,13 +58,14 @@ class Game:
         self.board_drawer.job_queue.put_nowait(task3)
 
     def update_canvas(self):
+
         tasks = []
         # iterate over every pawn
         for player in Players:
-            for pawn in range(PawnCount):
+            for pawn in range(PAWN_COUNT):
                 tasks.append({'type': "move",
                               'data': (player, pawn, self.board.pawns[player][pawn][0],
-                                       self.board.pawns[player][pawn][1])})
+                                       self.board.pawns[player][pawn][2])})
 
         # update every pawn on canvas
         list(map(self.board_drawer.job_queue.put_nowait, tasks))
@@ -70,5 +77,6 @@ class Game:
         self.event_ready.set()
         # call mainloop()
         self.board_drawer.show_board()
+        self.event_finished.wait()
         # delete tkinter canvas explicitly in THIS thread
         del self.board_drawer
