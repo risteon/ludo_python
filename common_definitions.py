@@ -25,6 +25,7 @@ class Players(IntEnum):
             return Players.black
         return Players(current + 1)
 
-PlayerCount = 4
-PawnCount = 4
-BoardFieldCount = 40
+PAWN_COUNT = 4
+BOARD_FIELD_COUNT = 40
+
+MAX_DICE_NUMBER_OF_POINTS = 6
