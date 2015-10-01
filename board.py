@@ -10,6 +10,7 @@ Field definition: (BoardFieldType | Player | Index)
 """
 Field = namedtuple('Field', ['type', 'player', 'index'])
 
+
 class BoardFieldDesc:
     def __init__(self, player):
         assert 0 <= player <= len(Players)
@@ -46,7 +47,15 @@ class Board:
                 pawns.append(Field(BoardFieldType.HOME, player, i))
             self.pawns.append(pawns)
 
-    def get_next_field(self, player, from_field, number_of_points):
+    def get_next_field(self, player, pawn, number_of_points):
+        assert player in Players
+        assert 0 <= pawn < PAWN_COUNT
+
+        from_field = self.pawns[player][pawn]
+        return self.propagate_field(player, from_field, number_of_points)
+
+    def propagate_field(self, player, from_field, number_of_points):
+
         if from_field[0] is BoardFieldType.HOME:
             if number_of_points is not MAX_DICE_NUMBER_OF_POINTS:
                 return False
@@ -66,11 +75,26 @@ class Board:
                              len(Players),
                              Board._make_global_field_counter(player, target))
 
-            return self.get_next_field(player,
-                                       (BoardFieldType.FINISH, player, 0),
-                                       target - BOARD_FIELD_COUNT)
+            return self.propagate_field(player,
+                                        (BoardFieldType.FINISH, player, 0),
+                                        target - BOARD_FIELD_COUNT)
 
         assert False
+
+    def get_target_field_desc(self, player, pawn, number_of_points):
+        """
+        Wrap method get_next_field using pawn array
+        :param player:
+        :param pawn:
+        :param number_of_points:
+        :return: BoardFieldDesc of target field
+        """
+        assert player in Players
+        assert 0 <= pawn < PAWN_COUNT
+        return self._fields[self.propagate_field(player,
+                                                self.pawns[player][pawn],
+                                                number_of_points)]
+        pass
 
     def get_board_field_desc(self, field):
         """ Getter for _field array

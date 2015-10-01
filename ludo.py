@@ -15,18 +15,14 @@ game.board.move_pawn(Players.black, 1, (BoardFieldType.FINISH, Players.black, 3)
 # Show board state
 game.update_canvas()
 
-for i in range(BOARD_FIELD_COUNT):
-    game.board.move_pawn(Players.black, 0, (BoardFieldType.FIELD, len(Players), i))
-    game.board.move_pawn(Players.black, 2, (BoardFieldType.FIELD,
-                                            len(Players),
-                                            (i+20) % BOARD_FIELD_COUNT))
+new_field = game.board.get_next_field(Players.red, 0, 6)
+game.board.move_pawn(Players.red, 0, new_field)
 
-    game.board.move_pawn(Players.green, 1, (BoardFieldType.FIELD,
-                                            len(Players),
-                                            (i+30) % BOARD_FIELD_COUNT))
-    game.board.move_pawn(Players.green, 3, (BoardFieldType.FIELD,
-                                            len(Players),
-                                            (i+10) % BOARD_FIELD_COUNT))
+while True:
+    new_field = game.board.get_next_field(Players.red, 0, 1)
+    if not new_field:
+        break
+    game.board.move_pawn(Players.red, 0, new_field)
     time.sleep(0.25)
     game.update_canvas()
 
