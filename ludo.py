@@ -16,15 +16,19 @@ game.board.move_pawn(Players.black, 1, (BoardFieldType.FINISH, Players.black, 3)
 game.update_canvas()
 
 new_field = game.board.get_next_field(Players.red, 0, 6)
-game.board.move_pawn(Players.red, 0, new_field)
+game.board.move_pawn(Players.red, 2, new_field)
 
-while True:
-    new_field = game.board.get_next_field(Players.red, 0, 1)
-    if not new_field:
-        break
-    game.board.move_pawn(Players.red, 0, new_field)
-    time.sleep(0.25)
-    game.update_canvas()
+print(game.move_manager.get_valid_moves(Players.yellow, 5))
+print(game.move_manager.get_valid_moves(Players.black, 5))
+print(game.move_manager.get_valid_moves(Players.red, 5))
+
+#while True:
+#    new_field = game.board.get_next_field(Players.red, 0, 1)
+#    if not new_field:
+#        break
+#    game.board.move_pawn(Players.red, 0, new_field)
+#    time.sleep(0.25)
+#    game.update_canvas()
 
 # Show board state
 game.update_canvas()

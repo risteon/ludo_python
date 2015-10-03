@@ -104,6 +104,18 @@ class Board:
         return self._fields[field]
 
     @staticmethod
+    def is_player_start_field(player, field):
+        if field.type is not BoardFieldType.FIELD:
+            return False
+
+        assert 0 <= field.index < BOARD_FIELD_COUNT
+
+        if Board._make_player_field_counter(player, field.index) is 0:
+            return True
+
+        return False
+
+    @staticmethod
     def _get_player_start_field(player):
         return Field(BoardFieldType.FIELD, len(Players), player * BOARD_FIELD_COUNT / len(Players))
 
