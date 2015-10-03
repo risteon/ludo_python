@@ -92,8 +92,8 @@ class Board:
         assert player in Players
         assert 0 <= pawn < PAWN_COUNT
         return self._fields[self.propagate_field(player,
-                                                self.pawns[player][pawn],
-                                                number_of_points)]
+                                                 self.pawns[player][pawn],
+                                                 number_of_points)]
         pass
 
     def get_board_field_desc(self, field):
