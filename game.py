@@ -3,7 +3,7 @@
 import threading
 
 from board import Board
-from player import Player
+from playermovefirstpawn import PlayerMoveFirstPawn
 from die import Die
 
 from boarddrawer import BoardDrawer
@@ -20,7 +20,7 @@ class Game:
         self.board = Board()
         self.move_manager = MoveManager(self.board)
 
-        self.players = [Player(p) for p in Players]
+        self.players = [PlayerMoveFirstPawn(p, self.board) for p in Players]
         self.current = Players.black
         self.die = Die()
 
