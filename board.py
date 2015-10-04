@@ -136,7 +136,7 @@ class Board:
 
         assert 0 <= field.index < BOARD_FIELD_COUNT
 
-        if Board._make_player_field_counter(player, field.index) is 0:
+        if Board._make_player_field_counter(player, field.index) == 0:
             return True
 
         return False
