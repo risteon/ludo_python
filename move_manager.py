@@ -67,7 +67,7 @@ class MoveManager:
         assert move.move_type is not MoveType.NO_MOVE
 
         if move.move_type is MoveType.HIT:
-            pass
+            self.board.send_home(move.to_field)
 
         self.board.move_pawn(player, move.pawn_id, move.to_field)
 
