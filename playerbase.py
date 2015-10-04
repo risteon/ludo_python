@@ -23,8 +23,3 @@ class PlayerBase:
     def choose_move(self, moves):
         """"Return chosen pawn to move"""""
         return
-
-    @abc.abstractmethod
-    def notify_cannot_move(self):
-        """"Let player register when no move is possible for him"""""
-        return

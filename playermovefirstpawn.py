@@ -10,10 +10,11 @@ class PlayerMoveFirstPawn(PlayerBase):
         return "Always moves the pawn which is furthest from the start"
 
     def choose_move(self, moves):
+        if not moves:
+            print("I'm so unlucky!")
+            return False
+
         # todo: Fix choosing!
 
-        # return pawn id
-        return moves[0][0]
-
-    def notify_cannot_move(self):
-        print("I'm so unlucky!")
+        # return move
+        return moves[0]
