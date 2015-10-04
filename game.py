@@ -36,13 +36,20 @@ class Game:
         self.event_ready.wait()
 
     def next_move(self):
-        print("It's", self.current, "move")
-        while True:
-            number = self.die.roll()
-            self.players[self.current].move(number)
-            if number is not 6:
-                break
-            print(self.current, "rolls again!")
+        #while True:
+        #    number = self.die.roll()
+        #    self.players[self.current].move(number)
+        #    if number is not 6:
+        #        break
+        #    print(self.current, "rolls again!")
+
+        number = self.die.roll()
+        moves = self.move_manager.get_valid_moves(self.current, number)
+        move = self.players[self.current].choose_move(moves)
+
+        if moves:
+            self.move_manager.perform_move(self.current, move)
+            print(self.current, "has rolled a", number, "and moved pawn", move.pawn_id)
 
         self.current = Players.next(self.current)
 

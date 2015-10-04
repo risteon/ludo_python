@@ -13,28 +13,12 @@ game = Game()
 # Show board state
 game.update_canvas()
 
-new_field = game.board.get_next_field(Players.red, 0, 6)
-game.board.move_pawn(Players.red, 2, new_field)
+user_continue = 'y'
 
-# print(game.move_manager.get_valid_moves(Players.yellow, 5))
-# print(game.move_manager.get_valid_moves(Players.black, 5))
-# print(game.move_manager.get_valid_moves(Players.red, 5))
+while user_continue == 'y':
+    game.next_move()
+    game.update_canvas()
+    user_continue = input("Input 'y' to continue...")
 
-game.update_canvas()
-
-input("Press Enter to continue...")
-
-game.board.send_home(new_field)
-
-#while True:
-#    new_field = game.board.get_next_field(Players.red, 0, 1)
-#    if not new_field:
-#        break
-#    game.board.move_pawn(Players.red, 0, new_field)
-#    time.sleep(0.25)
-#    game.update_canvas()
-
-# Show board state
-game.update_canvas()
 
 game.event_finished.set()
