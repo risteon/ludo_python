@@ -6,9 +6,17 @@ MoveManager class
 
 from enum import IntEnum
 from operator import itemgetter
+from collections import namedtuple
 
-from board import Board
+from board import Board, Field
 from common_definitions import PAWN_COUNT, BoardFieldType
+
+
+""" Priority rules:
+    1. Check for hits
+    2. Check for setting pawns on board
+    3. Check blocked pawns
+"""
 
 
 class MoveType(IntEnum):
@@ -22,37 +30,46 @@ class MoveType(IntEnum):
     NO_MOVE = 6
 
 
+"""
+Move definition: (Pawn-ID | MoveType | NumberOfPoints | To-Field)
+"""
+Move = namedtuple('Move', ['pawn_id', 'move_type', 'number_of_points', 'to_field'])
+
+
 class MoveManager:
     def __init__(self, _board):
         self.board = _board
 
-    """ Rules:
-    1. Check for strikes
-    2. Check for setting pawns on board
-    3. Check blocked pawns
-    """
     def get_valid_moves(self, player, number_of_points):
 
         moves = []
 
         for pawn_id in range(PAWN_COUNT):
             from_field = self.board.pawns[player][pawn_id]
-            target_field = self.board.get_next_field(player, pawn_id, number_of_points)
+            to_field = self.board.get_next_field(player, pawn_id, number_of_points)
 
-            move_type = self._check_pawn_move(player, from_field, target_field)
+            move_type = self._check_pawn_move(player, from_field, to_field)
 
-            moves.append((pawn_id, move_type))
+            moves.append(Move(pawn_id, move_type, number_of_points, to_field))
 
         if not moves:
             return False
 
         # order and use maximum MoveType value
         moves = sorted(moves, key=itemgetter(1))
-        max_value = moves[0][1]
+        max_value = moves[0].move_type
         if max_value is MoveType.NO_MOVE:
             return False
 
         return [s for s in moves if s[1] is max_value]
+
+    def perform_move(self, player, move):
+        assert move.move_type is not MoveType.NO_MOVE
+
+        if move.move_type is MoveType.HIT:
+            pass
+
+        self.board.move_pawn(player, move.pawn_id, move.to_field)
 
     def _check_pawn_move(self, player, from_field, to_field):
 
@@ -63,7 +80,7 @@ class MoveManager:
         target_field_occupation = self.board.get_board_field_desc(to_field)
 
         # occupied by same player - not valid
-        if target_field_occupation.pawn == player:
+        if target_field_occupation.player == player:
             return MoveType.NO_MOVE
 
         # empty, this pawn can move there

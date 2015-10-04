@@ -12,16 +12,19 @@ Field = namedtuple('Field', ['type', 'player', 'index'])
 
 
 class BoardFieldDesc:
-    def __init__(self, player):
+    def __init__(self, player, pawn_id):
         assert 0 <= player <= len(Players)
-        # init with given player
-        self.pawn = player
+        assert 0 <= pawn_id < PAWN_COUNT
+        # init with given player and pawn_id
+        self.player = player
+        self.pawn_id = pawn_id
 
     def is_occupied(self):
-        return self.pawn is not len(Players)
+        return self.player is not len(Players)
 
     def set_empty(self):
-        self.pawn = len(Players)
+        self.player = len(Players)
+        self.pawn_id = 0
 
 
 class Board:
@@ -31,11 +34,11 @@ class Board:
 
         for player in range(len(Players)):
             for index in range(PAWN_COUNT):
-                self._fields[(BoardFieldType.FINISH, player, index)] = BoardFieldDesc(len(Players))
-                self._fields[(BoardFieldType.HOME, player, index)] = BoardFieldDesc(player)
+                self._fields[(BoardFieldType.FINISH, player, index)] = BoardFieldDesc(len(Players), 0)
+                self._fields[(BoardFieldType.HOME, player, index)] = BoardFieldDesc(player, index)
 
         for index in range(BOARD_FIELD_COUNT):
-            self._fields[(BoardFieldType.FIELD, len(Players), index)] = BoardFieldDesc(len(Players))
+            self._fields[(BoardFieldType.FIELD, len(Players), index)] = BoardFieldDesc(len(Players), 0)
 
         # pawns
         self.pawns = []
@@ -46,6 +49,29 @@ class Board:
             for i in range(PAWN_COUNT):
                 pawns.append(Field(BoardFieldType.HOME, player, i))
             self.pawns.append(pawns)
+
+    def move_pawn(self, player, pawn_id, to_field):
+
+        assert 0 <= pawn_id < PAWN_COUNT
+        assert to_field in self._fields
+        assert not self._fields[to_field].is_occupied()
+
+        # swap from and to field occupation
+        self._fields[to_field], self._fields[self.pawns[player][pawn_id]] =\
+            self._fields[self.pawns[player][pawn_id]], self._fields[to_field]
+
+        # set pawn
+        self.pawns[player][pawn_id] = to_field
+
+    def send_home(self, on_field):
+        board_field_desc = self._fields[on_field]
+        # there needs to be a pawn!
+        assert board_field_desc.is_occupied()
+
+        # set pawn own its 'own' home field
+        to_field = Field(BoardFieldType.HOME, board_field_desc.player, board_field_desc.pawn_id)
+
+        self.move_pawn(board_field_desc.player, board_field_desc.pawn_id, to_field)
 
     def get_next_field(self, player, pawn, number_of_points):
         assert player in Players
@@ -129,18 +155,3 @@ class Board:
     def _make_global_field_counter(player, player_field_counter):
         assert 0 <= player_field_counter < BOARD_FIELD_COUNT
         return (player_field_counter + player * BOARD_FIELD_COUNT / len(Players)) % BOARD_FIELD_COUNT
-
-    def move_pawn(self, player, pawn_id, to_field):
-
-        assert 0 <= pawn_id < PAWN_COUNT
-        assert to_field in self._fields
-
-        # empty current field
-        self._fields[self.pawns[player][pawn_id]].set_empty()
-
-        # set pawn
-        self.pawns[player][pawn_id] = to_field
-
-        # fill new field
-        self._fields[to_field].pawn = player
-
