@@ -46,17 +46,6 @@ class Game:
 
         self.current = Players.next(self.current)
 
-    def test_pawn_movement(self):
-        # Create tasks
-        task1 = {'type': "move", 'data': (Players.black, 0, BoardFieldType.FIELD, 4)}
-        task2 = {'type': "move", 'data': (Players.black, 2, BoardFieldType.FIELD, 32)}
-        task3 = {'type': "move", 'data': (Players.yellow, 3, BoardFieldType.FINISH, 2)}
-
-        # submit tasks
-        self.board_drawer.job_queue.put_nowait(task1)
-        self.board_drawer.job_queue.put_nowait(task2)
-        self.board_drawer.job_queue.put_nowait(task3)
-
     def update_canvas(self):
 
         tasks = []
