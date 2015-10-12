@@ -49,7 +49,11 @@ class Game:
 
         if moves:
             self.move_manager.perform_move(self.current, move)
-            print(self.current, "has rolled a", number, "and moved pawn", move.pawn_id)
+            print(self.current, "has rolled a", number, "and moved pawn", move.pawn_id, "- type:", move.move_type, "valid moves:")
+            for m in moves:
+                print(m)
+        else:
+            print(self.current, "has rolled a", number, "and cannot move any pawn")
 
         self.current = Players.next(self.current)
 
