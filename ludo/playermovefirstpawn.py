@@ -1,5 +1,6 @@
 # Player
 
+from operator import itemgetter
 from playerbase import PlayerBase, Players
 
 
@@ -14,7 +15,13 @@ class PlayerMoveFirstPawn(PlayerBase):
             print("I'm so unlucky!")
             return False
 
-        # todo: Fix choosing!
+        if len(moves) > 1:
+            progress_list = [(move, self.board.get_pawn_progress_rating(self.player, move.pawn_id))
+                             for move in moves]
 
-        # return move
+            priority = sorted(progress_list, key=itemgetter(1), reverse=True)
+
+            # return move
+            return priority[0][0]
+
         return moves[0]

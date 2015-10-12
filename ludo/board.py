@@ -8,7 +8,7 @@ from common_definitions import BoardFieldType, BOARD_FIELD_COUNT,\
 """
 Field definition: (BoardFieldType | Player | Index)
 """
-Field = namedtuple('Field', ['type', 'player', 'index'])
+Field = namedtuple('Field', ['type', 'player', 'field_index'])
 
 
 class BoardFieldDesc:
@@ -88,10 +88,15 @@ class Board:
             return self._get_player_start_field(player)
 
         elif from_field[0] is BoardFieldType.FINISH:
-            target_field = from_field[2] + number_of_points
-            if target_field > (PAWN_COUNT - 1):
+            target_field_index = from_field.field_index + number_of_points
+            if target_field_index > (PAWN_COUNT - 1):
                 return False
-            return Field(BoardFieldType.FINISH, player, target_field)
+
+            # cannot jump over pawn on finish fields
+            if not self.is_finish_free_in_between(player, from_field.field_index, target_field_index):
+                return False
+
+            return Field(BoardFieldType.FINISH, player, target_field_index)
 
         elif from_field[0] is BoardFieldType.FIELD:
             player_field_counter = Board._make_player_field_counter(player, from_field[2])
@@ -102,7 +107,7 @@ class Board:
                              Board._make_global_field_counter(player, target))
 
             return self.propagate_field(player,
-                                        (BoardFieldType.FINISH, player, 0),
+                                        Field(BoardFieldType.FINISH, player, 0),
                                         target - BOARD_FIELD_COUNT)
 
         assert False
@@ -129,14 +134,36 @@ class Board:
         """
         return self._fields[field]
 
+    def is_finish_free_in_between(self, player, index_first_need_free, index_last_need_free):
+        assert(0 <= index_first_need_free < 4)
+        assert(0 <= index_last_need_free < 4)
+
+        for i in range(int(index_first_need_free), int(index_last_need_free + 1)):
+            if self._fields[(BoardFieldType.FINISH, player, i)].is_occupied():
+                return False
+
+        return True
+
+    def get_pawn_progress_rating(self, player, pawn_id):
+
+        field = self.pawns[player][pawn_id]
+
+        if field.type == BoardFieldType.HOME:
+            return -1
+
+        if field.type == BoardFieldType.FINISH:
+            return BOARD_FIELD_COUNT + field.field_index
+
+        return Board._make_player_field_counter(player, field.field_index)
+
     @staticmethod
     def is_player_start_field(player, field):
         if field.type is not BoardFieldType.FIELD:
             return False
 
-        assert 0 <= field.index < BOARD_FIELD_COUNT
+        assert 0 <= field.field_index < BOARD_FIELD_COUNT
 
-        if Board._make_player_field_counter(player, field.index) == 0:
+        if Board._make_player_field_counter(player, field.field_index) == 0:
             return True
 
         return False
