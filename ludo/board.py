@@ -138,7 +138,7 @@ class Board:
         assert(0 <= index_first_need_free < 4)
         assert(0 <= index_last_need_free < 4)
 
-        for i in range(int(index_first_need_free), int(index_last_need_free + 1)):
+        for i in range(int(index_first_need_free + 1), int(index_last_need_free + 1)):
             if self._fields[(BoardFieldType.FINISH, player, i)].is_occupied():
                 return False
 
