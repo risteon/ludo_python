@@ -54,7 +54,6 @@ class Game:
         return self._execute_move(number)
 
     def _execute_move(self, number):
-        print("Current:", self.current, ", rolled a", number)
         moves = self.move_manager.get_valid_moves(self.current, number)
 
         if not self._let_player_execute_move(moves):
@@ -62,7 +61,6 @@ class Game:
 
         # roll again when having max number of points
         if number == MAX_DICE_NUMBER_OF_POINTS:
-            print("Roll again!")
             return True
 
         if self._retry_counter == 0:
@@ -78,7 +76,6 @@ class Game:
             if self.move_manager.check_if_finished(self.current):
                 assert self.current not in self.finishers
                 self.finishers.append(self.current)
-                print(self.current, "has finished:", len(self.finishers))
                 if len(self.finishers) == len(Players):
                     return False
 
@@ -110,8 +107,6 @@ class Game:
             self.current = Players.next(self.current)
             if self.current not in self.finishers:
                 break
-
-        print("Turn:", self.current)
 
     def _tk_mainloop(self):
         # print board on tk canvas

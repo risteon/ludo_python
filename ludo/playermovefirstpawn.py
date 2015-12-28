@@ -12,7 +12,6 @@ class PlayerMoveFirstPawn(PlayerBase):
 
     def choose_move(self, moves):
         if not moves:
-            print("I'm so unlucky!")
             return False
 
         if len(moves) > 1:
