@@ -1,3 +1,4 @@
+from game import Game, MAX_THROWS
 from move_manager import MoveManager, Move, MoveType
 from board import Board, Field
 from common_definitions import BoardFieldType, BOARD_FIELD_COUNT,\
@@ -19,6 +20,21 @@ class TestMoves(unittest.TestCase):
         board = Board()
         for player in Players:
             self.board_for_player(board, player)
+
+    def test_game(self):
+        game = Game()
+        b = game.move_manager.board
+        player = game.current
+        for i in range(0, MAX_THROWS):
+            self.assertEqual(player, game.current)
+            game._execute_move(5)
+        player = Players.next(player)
+        self.assertEqual(player, game.current)
+        game._execute_move(6)
+        self.assertEqual(player, game.current)
+        game._execute_move(1)
+        player = Players.next(player)
+        self.assertEqual(player, game.current)
 
     def board_for_player(self, board, player):
         # [ ][ ][ ][ ]

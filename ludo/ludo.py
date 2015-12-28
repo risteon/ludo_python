@@ -9,6 +9,7 @@ print("Welcome to a game of ludo!")
 
 # Create game instance
 game = Game()
+game.start_tk_visualization()
 
 # Show board state
 game.update_canvas()

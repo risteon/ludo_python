@@ -13,7 +13,7 @@ from move_manager import MoveManager
 from common_definitions import BoardFieldType, PAWN_COUNT, MAX_DICE_NUMBER_OF_POINTS
 from common_definitions import Players
 
-MAX_RETRY = 3
+MAX_THROWS = 3
 
 
 class Game:
@@ -25,7 +25,7 @@ class Game:
         self.players = [PlayerMoveFirstPawn(p, self.board) for p in Players]
         self.current = Players.black
         self.die = Die()
-        self.retry_counter = 0
+        self._retry_counter = 0
 
         # save finishers
         self.finishers = []
@@ -36,8 +36,9 @@ class Game:
         self.lock = threading.Lock()
         # Thread for tk mainloop, this runs until the program gets exited
         self.tk_thread = threading.Thread(target=self._tk_mainloop)
-        self.tk_thread.start()
 
+    def start_tk_visualization(self):
+        self.tk_thread.start()
         # Wait for completion of canvas initialization
         self.event_ready.wait()
 
@@ -50,36 +51,44 @@ class Game:
         #    print(self.current, "rolls again!")
 
         number = self.die.roll()
+        return self._execute_move(number)
+
+    def _execute_move(self, number):
+        print("Current:", self.current, ", rolled a", number)
         moves = self.move_manager.get_valid_moves(self.current, number)
+
+        if not self._let_player_execute_move(moves):
+            return False
+
+        # roll again when having max number of points
+        if number == MAX_DICE_NUMBER_OF_POINTS:
+            print("Roll again!")
+            return True
+
+        if self._retry_counter == 0:
+            self._go_to_next_player()
+        return True
+
+    def _let_player_execute_move(self, moves):
         move = self.players[self.current].choose_move(moves)
 
         if moves:
-            self.retry_counter = 0
+            self._retry_counter = 0
             self.move_manager.perform_move(self.current, move)
-            if not self.move_manager.check_if_finished(self.current):
-                print(self.current, "has rolled a", number, "and moved pawn", move.pawn_id, "- type:", move.move_type,
-                      "valid moves:")
-            else:
+            if self.move_manager.check_if_finished(self.current):
                 assert self.current not in self.finishers
                 self.finishers.append(self.current)
                 print(self.current, "has finished:", len(self.finishers))
                 if len(self.finishers) == len(Players):
                     return False
 
-            # roll again when having max number of points
-            if number == MAX_DICE_NUMBER_OF_POINTS:
-                print("Roll again!")
-                return True
         else:
             if (self.move_manager.board.can_player_only_emerge(self.current) and
-                    self.retry_counter < MAX_RETRY):
-                self.retry_counter += 1
-                return True
+                    self._retry_counter < MAX_THROWS-1):
+                self._retry_counter += 1
             else:
-                self.retry_counter = 0
-                print(self.current, "has rolled a", number, "and cannot move any pawn")
+                self._retry_counter = 0
 
-        self._go_to_next_player()
         return True
 
     def update_canvas(self):
