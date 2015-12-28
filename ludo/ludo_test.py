@@ -22,29 +22,36 @@ class TestMoves(unittest.TestCase):
 
     def board_for_player(self, board, player):
         # [ ][ ][ ][ ]
-        self.assertEqual(board.is_no_space_in_finish(player), True)
+        self.assertEqual(board._is_no_space_in_finish(player), True)
         self.assertEqual(board.is_finish_free_in_between(player, 0, 3), True)
+        self.assertEqual(board.can_player_only_emerge(player), True)
         # [ ][ ][ ][X]
         board.move_pawn(player, 0, Field(type=BoardFieldType.FINISH, player=player, field_index=PAWN_COUNT-1))
-        self.assertEqual(board.is_no_space_in_finish(player), True)
+        self.assertEqual(board._is_no_space_in_finish(player), True)
         self.assertEqual(board.is_finish_free_in_between(player, 0, 3), False)
         self.assertEqual(board.is_finish_free_in_between(player, 0, 2), True)
         self.assertEqual(board.is_finish_free_in_between(player, 0, 0), True)
         # [ ][ ][X][ ]
         board.move_pawn(player, 0, Field(type=BoardFieldType.FINISH, player=player, field_index=PAWN_COUNT-2))
-        self.assertEqual(board.is_no_space_in_finish(player), False)
+        self.assertEqual(board._is_no_space_in_finish(player), False)
         self.assertEqual(board.is_finish_free_in_between(player, 0, 2) , False)
         self.assertEqual(board.is_finish_free_in_between(player, 0, 1), True)
         self.assertEqual(board.is_finish_free_in_between(player, 3, 3), True)
+        self.assertEqual(board.can_player_only_emerge(player), False)
         # [ ][ ][X][X]
         board.move_pawn(player, 1, Field(type=BoardFieldType.FINISH, player=player, field_index=PAWN_COUNT-1))
-        self.assertEqual(board.is_no_space_in_finish(player), True)
+        self.assertEqual(board._is_no_space_in_finish(player), True)
+        self.assertEqual(board.can_player_only_emerge(player), True)
+        #  X [ ][ ][X][X]
+        board.move_pawn(player, 2, Field(type=BoardFieldType.FIELD, player=len(Players),
+                                         field_index=board._make_global_field_counter(player, BOARD_FIELD_COUNT-1)))
+        self.assertEqual(board.can_player_only_emerge(player), False)
         # [X][ ][X][X]
         board.move_pawn(player, 2, Field(type=BoardFieldType.FINISH, player=player, field_index=PAWN_COUNT-4))
-        self.assertEqual(board.is_no_space_in_finish(player), False)
+        self.assertEqual(board._is_no_space_in_finish(player), False)
         # [X][X][X][X]
         board.move_pawn(player, 3, Field(type=BoardFieldType.FINISH, player=player, field_index=PAWN_COUNT-3))
-        self.assertEqual(board.is_no_space_in_finish(player), True)
+        self.assertEqual(board._is_no_space_in_finish(player), True)
         self.assertEqual(board.has_player_finished(player), True)
 
     def valid_moves_finish_for_player(self, board, move_manager, player):

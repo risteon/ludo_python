@@ -10,8 +10,10 @@ from boarddrawer import BoardDrawer
 
 from move_manager import MoveManager
 
-from common_definitions import BoardFieldType, PAWN_COUNT
+from common_definitions import BoardFieldType, PAWN_COUNT, MAX_DICE_NUMBER_OF_POINTS
 from common_definitions import Players
+
+MAX_RETRY = 3
 
 
 class Game:
@@ -23,6 +25,7 @@ class Game:
         self.players = [PlayerMoveFirstPawn(p, self.board) for p in Players]
         self.current = Players.black
         self.die = Die()
+        self.retry_counter = 0
 
         # save finishers
         self.finishers = []
@@ -39,7 +42,7 @@ class Game:
         self.event_ready.wait()
 
     def next_move(self):
-        #while True:
+        # while True:
         #    number = self.die.roll()
         #    self.players[self.current].move(number)
         #    if number is not 6:
@@ -51,9 +54,11 @@ class Game:
         move = self.players[self.current].choose_move(moves)
 
         if moves:
+            self.retry_counter = 0
             self.move_manager.perform_move(self.current, move)
             if not self.move_manager.check_if_finished(self.current):
-                print(self.current, "has rolled a", number, "and moved pawn", move.pawn_id, "- type:", move.move_type, "valid moves:")
+                print(self.current, "has rolled a", number, "and moved pawn", move.pawn_id, "- type:", move.move_type,
+                      "valid moves:")
             else:
                 assert self.current not in self.finishers
                 self.finishers.append(self.current)
@@ -61,10 +66,18 @@ class Game:
                 if len(self.finishers) == len(Players):
                     return False
 
-            for m in moves:
-                print(m)
+            # roll again when having max number of points
+            if number == MAX_DICE_NUMBER_OF_POINTS:
+                print("Roll again!")
+                return True
         else:
-            print(self.current, "has rolled a", number, "and cannot move any pawn")
+            if (self.move_manager.board.can_player_only_emerge(self.current) and
+                    self.retry_counter < MAX_RETRY):
+                self.retry_counter += 1
+                return True
+            else:
+                self.retry_counter = 0
+                print(self.current, "has rolled a", number, "and cannot move any pawn")
 
         self._go_to_next_player()
         return True
@@ -88,7 +101,8 @@ class Game:
             self.current = Players.next(self.current)
             if self.current not in self.finishers:
                 break
-            print("skipping", self.current)
+
+        print("Turn:", self.current)
 
     def _tk_mainloop(self):
         # print board on tk canvas

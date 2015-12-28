@@ -144,7 +144,15 @@ class Board:
 
         return True
 
-    def is_no_space_in_finish(self, player):
+    def can_player_only_emerge(self, player):
+        if not self._is_no_space_in_finish(player):
+            return False
+        for p in range(0, PAWN_COUNT):
+            if self.pawns[player][p].type == BoardFieldType.FIELD:
+                return False
+        return True
+
+    def _is_no_space_in_finish(self, player):
         assert player in Players
         first_field = PAWN_COUNT-1
         for field in range(0, PAWN_COUNT):
