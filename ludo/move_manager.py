@@ -61,6 +61,7 @@ class MoveManager:
         if max_value is MoveType.NO_MOVE:
             return False
 
+        # return only moves with max priority
         return [s for s in moves if s[1] is max_value]
 
     def perform_move(self, player, move):
@@ -70,6 +71,9 @@ class MoveManager:
             self.board.send_home(move.to_field)
 
         self.board.move_pawn(player, move.pawn_id, move.to_field)
+
+    def check_if_finished(self, player):
+        return self.board.has_player_finished(player)
 
     def _check_pawn_move(self, player, from_field, to_field):
 

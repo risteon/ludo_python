@@ -144,6 +144,12 @@ class Board:
 
         return True
 
+    def has_player_finished(self, player):
+        for pawn in range(0, PAWN_COUNT):
+            if not self._fields[(BoardFieldType.FINISH, player, pawn)].is_occupied():
+                return False
+        return True
+
     def get_pawn_progress_rating(self, player, pawn_id):
 
         field = self.pawns[player][pawn_id]

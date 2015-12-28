@@ -24,6 +24,9 @@ class Game:
         self.current = Players.black
         self.die = Die()
 
+        # save finishers
+        self.finishers = []
+
         self.event_ready = threading.Event()
         self.event_finished = threading.Event()
         # Look to serialize canvas drawings
@@ -49,13 +52,22 @@ class Game:
 
         if moves:
             self.move_manager.perform_move(self.current, move)
-            print(self.current, "has rolled a", number, "and moved pawn", move.pawn_id, "- type:", move.move_type, "valid moves:")
+            if not self.move_manager.check_if_finished(self.current):
+                print(self.current, "has rolled a", number, "and moved pawn", move.pawn_id, "- type:", move.move_type, "valid moves:")
+            else:
+                assert self.current not in self.finishers
+                self.finishers.append(self.current)
+                print(self.current, "has finished:", len(self.finishers))
+                if len(self.finishers) == len(Players):
+                    return False
+
             for m in moves:
                 print(m)
         else:
             print(self.current, "has rolled a", number, "and cannot move any pawn")
 
-        self.current = Players.next(self.current)
+        self._go_to_next_player()
+        return True
 
     def update_canvas(self):
 
@@ -69,6 +81,14 @@ class Game:
 
         # update every pawn on canvas
         list(map(self.board_drawer.job_queue.put_nowait, tasks))
+
+    def _go_to_next_player(self):
+        assert len(self.finishers) < len(Players)
+        while True:
+            self.current = Players.next(self.current)
+            if self.current not in self.finishers:
+                break
+            print("skipping", self.current)
 
     def _tk_mainloop(self):
         # print board on tk canvas
