@@ -144,6 +144,19 @@ class Board:
 
         return True
 
+    def is_no_space_in_finish(self, player):
+        assert player in Players
+        first_field = PAWN_COUNT-1
+        for field in range(0, PAWN_COUNT):
+            if self._fields[(BoardFieldType.FINISH, player, field)].is_occupied():
+                first_field = field
+                break
+
+        for field in range(first_field + 1, PAWN_COUNT):
+            if not self._fields[(BoardFieldType.FINISH, player, field)].is_occupied():
+                return False
+        return True
+
     def has_player_finished(self, player):
         for pawn in range(0, PAWN_COUNT):
             if not self._fields[(BoardFieldType.FINISH, player, pawn)].is_occupied():
