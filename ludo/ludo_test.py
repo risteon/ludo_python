@@ -36,6 +36,45 @@ class TestMoves(unittest.TestCase):
         player = Players.next(player)
         self.assertEqual(player, game.current)
 
+    def test_player_base(self):
+        game = Game()
+        player = game.current
+        self.assertEqual(game._execute_move(5), True)
+        expected_move_stats = [1, 0, 0, 0]
+        self.assertListEqual(game.players[player].move_stats, expected_move_stats)
+        self.assertEqual(game._execute_move(6), True)
+        expected_move_stats = [2, 0, 0, 0]
+        self.assertListEqual(game.players[player].move_stats, expected_move_stats)
+        self.assertEqual(game._execute_move(6), True)
+        expected_move_stats = [3, 0, 0, 0]
+        self.assertListEqual(game.players[player].move_stats, expected_move_stats)
+        # set all but one pawn on field:
+        for i in range(0, 5):
+            self.assertEqual(game._execute_move(6), True)
+        self.assertEqual(game._execute_move(1), True)
+        num_pawns_at_home = len([True for p in range(0, PAWN_COUNT) if game.board.pawns[player][p].type is BoardFieldType.HOME])
+        self.assertEqual(num_pawns_at_home, 1)
+        expected_move_stats = [9, 0, 0, 0]
+        self.assertListEqual(game.players[player].move_stats, expected_move_stats)
+        # let all other players roll a 1
+        for i in range(0, 9):
+            self.assertEqual(game._execute_move(1), True)
+        self.assertEqual(game.current, player)
+        self.assertEqual(game._execute_move(6), True)
+        expected_move_stats = [10, 0, 0, 0]
+        self.assertListEqual(game.players[player].move_stats, expected_move_stats)
+        self.assertEqual(game._execute_move(2), True)
+        self.assertEqual(game.current, Players.next(player))
+        expected_move_stats = [11, 0, 0, 0]
+        self.assertListEqual(game.players[player].move_stats, expected_move_stats)
+        # let all other players roll a 1
+        for i in range(0, 9):
+            self.assertEqual(game._execute_move(1), True)
+        self.assertEqual(game.current, player)
+        self.assertEqual(game._execute_move(3), True)
+        expected_move_stats = [11, 0, 0, 1]
+        self.assertListEqual(game.players[player].move_stats, expected_move_stats)
+
     def board_for_player(self, board, player):
         # [ ][ ][ ][ ]
         self.assertEqual(board._is_no_space_in_finish(player), True)
