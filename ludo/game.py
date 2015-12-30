@@ -70,7 +70,7 @@ class Game:
     def _let_player_execute_move(self, moves):
         move = self.players[self.current].choose_move(moves)
 
-        if moves:
+        if move is not None:
             self._retry_counter = 0
             self.move_manager.perform_move(self.current, move)
             if self.move_manager.check_if_finished(self.current):

@@ -27,12 +27,12 @@ class TestMoves(unittest.TestCase):
         player = game.current
         for i in range(0, MAX_THROWS):
             self.assertEqual(player, game.current)
-            game._execute_move(5)
+            self.assertEqual(game._execute_move(5), True)
         player = Players.next(player)
         self.assertEqual(player, game.current)
-        game._execute_move(6)
+        self.assertEqual(game._execute_move(6), True)
         self.assertEqual(player, game.current)
-        game._execute_move(1)
+        self.assertEqual(game._execute_move(1), True)
         player = Players.next(player)
         self.assertEqual(player, game.current)
 
@@ -50,7 +50,7 @@ class TestMoves(unittest.TestCase):
         # [ ][ ][X][ ]
         board.move_pawn(player, 0, Field(type=BoardFieldType.FINISH, player=player, field_index=PAWN_COUNT-2))
         self.assertEqual(board._is_no_space_in_finish(player), False)
-        self.assertEqual(board.is_finish_free_in_between(player, 0, 2) , False)
+        self.assertEqual(board.is_finish_free_in_between(player, 0, 2), False)
         self.assertEqual(board.is_finish_free_in_between(player, 0, 1), True)
         self.assertEqual(board.is_finish_free_in_between(player, 3, 3), True)
         self.assertEqual(board.can_player_only_emerge(player), False)
@@ -78,23 +78,23 @@ class TestMoves(unittest.TestCase):
         moves = move_manager.get_valid_moves(player, 1)
         expected_move = Move(pawn_id=0, move_type=MoveType.NORMAL, number_of_points=1,
                              to_field=Field(type=BoardFieldType.FINISH, player=player, field_index=1))
-        self.assertNotEqual(moves, False, "No valid moves found")
+        self.assertNotEqual(moves, [], "No valid moves found")
         self.assertEqual(moves[0], expected_move)
         moves = move_manager.get_valid_moves(player, 3)
         expected_move = Move(pawn_id=0, move_type=MoveType.NORMAL, number_of_points=3,
                              to_field=Field(type=BoardFieldType.FINISH, player=player, field_index=3))
         self.assertEqual(moves[0], expected_move)
         moves = move_manager.get_valid_moves(player, 4)
-        self.assertEqual(moves, False)
+        self.assertEqual(moves, [])
         moves = move_manager.get_valid_moves(player, 5)
-        self.assertEqual(moves, False)
+        self.assertEqual(moves, [])
 
         # set board
         target = Field(type=BoardFieldType.FINISH, player=player, field_index=2)
         board.move_pawn(player, 1, target)
 
         moves = move_manager.get_valid_moves(player, 2)
-        self.assertEqual(moves, False)
+        self.assertEqual(moves, [])
         moves = move_manager.get_valid_moves(player, 1)
         self.assertEqual(len(moves), 2)
         expected_move = Move(pawn_id=0, move_type=MoveType.NORMAL, number_of_points=1,
@@ -123,9 +123,9 @@ class TestMoves(unittest.TestCase):
                              to_field=Field(type=BoardFieldType.FINISH, player=player, field_index=1))
         self.assertIn(expected_move, moves)
         moves = move_manager.get_valid_moves(player, 3)
-        self.assertEqual(moves, False)
+        self.assertEqual(moves, [])
         moves = move_manager.get_valid_moves(player, 4)
-        self.assertEqual(moves, False)
+        self.assertEqual(moves, [])
 
 
 if __name__ == '__main__':

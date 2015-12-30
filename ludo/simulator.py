@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from game import Game
+from common_definitions import Players
 
 print("Welcome to a game of ludo!")
 
@@ -27,5 +28,9 @@ for i in range(0, NUM_GAMES):
 print("Average throws:", average_throw_counter/NUM_GAMES)
 print("Min", min_throws_per_game)
 print("Max", max_throws_per_game)
+player = game.players[0]
+print("Stats for player number 1:")
+print(player.move_stats)
+print(player.move_counter)
 
 

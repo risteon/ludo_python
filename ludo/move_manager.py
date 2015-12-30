@@ -52,14 +52,13 @@ class MoveManager:
 
             moves.append(Move(pawn_id, move_type, number_of_points, to_field))
 
-        if not moves:
-            return False
+        assert moves
 
         # order and use maximum MoveType value
         moves = sorted(moves, key=itemgetter(1))
         max_value = moves[0].move_type
         if max_value is MoveType.NO_MOVE:
-            return False
+            return []
 
         # return only moves with max priority
         return [s for s in moves if s[1] is max_value]

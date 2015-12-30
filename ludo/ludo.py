@@ -25,7 +25,8 @@ while user_continue == 'y' or user_continue == 's':
     loop_counter += 1
     if loop_counter % 10 == 0 or user_continue == 's':
         game.update_canvas()
-        user_continue = input("Input 'y' to continue...")
+        user_continue = input(str(game.current) + " - Input 'y' to continue...")
 
 print("exiting...")
+game.update_canvas()
 game.event_finished.set()
