@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from game import Game, MAX_THROWS
 from move_manager import MoveManager, Move, MoveType
 from board import Board, Field
